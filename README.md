@@ -1,5 +1,23 @@
 # 16AA-vote-displayer
 Python script intended to render the votes for an event, and to display who has yet to vote.
 
-It is currently set up to be run via a command line, but the intentions is to swap that for automatically render the votes for the current event.
-This could be done by exchanging the "download guestlist" button with running this script, which ends up opening up the rendered file.
+WHAT IT DOES:
+It compares the ORBAT (as it is) with the chosen event and renders a list of who has voted what, and who has yet to vote.
+You can run this several times. It generates a local html-file locally, and displays that in a new tab on your web browser.
+
+HOW TO USE:
+Run vote.py in a command line interface (such as cmd). It will prompt you for a URL to the event you want to check attendance for.
+It runs it's magic and stores the results in an offline html-file which is opened once rendered.
+
+CHANGELOG 1.1:
+Includes Coy HQ, Signals and FST who were previously not included due to website structure.
+
+CHANGELOG 1.2:
+FST renamed to JFIST on the website, adapted script to stop fucking up and breaking down.
+Included MI under the name 3/2.
+
+LIMITATIONS:
+If you enjoy fancy designed webpages prepare for dissapointment.
+Way too much stuff is hard coded in this file, so it is bound to break down eventually.
+I'll try to stay ontop of maintaining it until a better solution is made by someone who cares.
+Until then, good luck!
