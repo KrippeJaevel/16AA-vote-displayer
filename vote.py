@@ -13,7 +13,7 @@ orbatPage = requests.get(OrbatURL)
 orbat = BeautifulSoup(orbatPage.content, "html.parser")
 
 def get_attendance_URL():
-    attendanceURL = input("Please enter the URL to the event you want to check:\n")
+    attendanceURL = input("16AA Vote Displayer v1.2.1. \nPlease enter the URL to the event you want to check:\n")
     if attendanceURL.find("https://community.16aa.net/calendar/event/") < 0:
         print("Not like that...\nIt should look something like this:\nhttps://community.16aa.net/calendar/event/666-operation-gather-votes-xiv/")
         attendanceURL = get_attendance_URL()
@@ -61,20 +61,29 @@ def get_voters():
         full_selection_voted_yes = attendance.find("div", id="ipsTabs_elAttendeesMob_elGoing_panel")
         full_selection_voted_maybe = attendance.find("div", id="ipsTabs_elAttendeesMob_elMaybe_panel")
         full_selection_voted_no = attendance.find("div", id="ipsTabs_elAttendeesMob_elNotGoing_panel")
-        attending_voters = full_selection_voted_yes.find_all("a")
-        maybe_voters = full_selection_voted_maybe.find_all("a")
-        loa_voters = full_selection_voted_no.find_all("a")
+        attending_voters_dirty = full_selection_voted_yes.find_all("span")
+        maybe_voters_dirty = full_selection_voted_maybe.find_all("span")
+        loa_voters_dirty = full_selection_voted_no.find_all("span")
+        attending_voters = []
+        maybe_voters = []
+        loa_voters = []
+        for attendee in attending_voters_dirty:
+            attending_voters.append(attendee.get_text())
+        for maybe in maybe_voters_dirty:
+            maybe_voters.append(maybe.get_text())
+        for loa in loa_voters_dirty:
+            loa_voters.append(loa.get_text())
     except AttributeError as error:
         print("Make sure your URL was correct. I couldn't find anything at all there...")
         input("This will turn off now. Press any key and restart. Do it right this time. Bye!\n")
         sys.exit()
     votes_dictionary = {"yes": [], "maybe": [], "no": []}
     for voter in attending_voters:
-        votes_dictionary["yes"].append(voter.text[:-2].strip())
+        votes_dictionary["yes"].append(voter)
     for voter in maybe_voters:
-        votes_dictionary["maybe"].append(voter.text[:-2].strip())
+        votes_dictionary["maybe"].append(voter)
     for voter in loa_voters:
-        votes_dictionary["no"].append(voter.text[:-2].strip())
+        votes_dictionary["no"].append(voter)
     return votes_dictionary
 
 # Save the votes from the event to a variable to check against with function get_attending_members()
