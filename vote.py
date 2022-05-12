@@ -1,47 +1,90 @@
-from datetime import date
-from bs4 import BeautifulSoup
-import requests
 import webbrowser
 import sys
+import datetime
+from bs4 import BeautifulSoup
+import requests
 OrbatURL = "https://community.16aa.net/orbat/"
-# When running serverside: replace the above attendanceURL with one of the below (not sure which one due to not being on a server yet)
-#ALT1 attendanceURL = self.request.url
-#ALT2 attendanceURL = self.request.query_string
 
 # Locates the orbat and parses the content
 orbatPage = requests.get(OrbatURL)
 orbat = BeautifulSoup(orbatPage.content, "html.parser")
-
-def get_attendance_URL():
-    attendanceURL = input("16AA Vote Displayer v1.2.1. \nPlease enter the URL to the event you want to check:\n")
-    if attendanceURL.find("https://community.16aa.net/calendar/event/") < 0:
-        print("Not like that...\nIt should look something like this:\nhttps://community.16aa.net/calendar/event/666-operation-gather-votes-xiv/")
-        attendanceURL = get_attendance_URL()
-    return attendanceURL
-
-attendanceURL = get_attendance_URL()
 calendarURL = "https://community.16aa.net/calendar/"
 calendarRAW = requests.get(calendarURL)
+operationsCalendarURL = "https://community.16aa.net/calendar/2-operations-calendar/"
+operationsCalendarRAW = requests.get(operationsCalendarURL)
 calendar = BeautifulSoup(calendarRAW.content, "html.parser")
+operationsCalendar = BeautifulSoup(operationsCalendarRAW.content, "html.parser")
+nextOpCalendarURL = operationsCalendar.find("a", {"rel":"next nofollow"})
+nextOperationsCalendarRAW = requests.get(nextOpCalendarURL["href"])
+nextOperationsCalendar = BeautifulSoup(nextOperationsCalendarRAW.content, "html.parser")
 
+# Sets the date range to start from today and add an arbitrary number of days to it
+def date_range():
+    today = datetime.date.today()
+    week = [today.strftime('%Y-%m-%d')]
+    added = 0
+    while added < 25:
+        added += 1
+        day = today + datetime.timedelta(days=added)
+        week.append(day.strftime('%Y-%m-%d'))
+    return week
 
-# Finds today. Navigates to last day in current week. Grabs the Sunday - 20.00 one (UK time)
-"""def get_next_event():
-    based_of_today = calendar.find("td", {"class": "cCalendar_date cCalendar_today"})
-    week_view = based_of_today.find_parent("tr")
-    list_of_events = week_view.find_all("li")[-1]
-    sunday_op = ""
-    for tag in list_of_events:
-        index = str(tag).find("href")
-        index_last = index
-        if index > 0 and str(tag).find('time">08:00  PM') > 0:
-            index_last =  str(tag).find(" ",index)
-            sunday_op = str(tag)[index+6:index_last-1]
-            break
-    return sunday_op"""
+# Utility function that checks if the date range is beyond a single month
+def checkMonthChange(firstMonth, lastMonth):
+    if firstMonth != lastMonth:
+        return True
+    else:
+        return False
 
-#attendanceURL = get_next_event()
+# Receives a date range, finds all events in the operations calendar during that time period, and compiles them to present to the user
+def get_events():
+    dateRange = date_range()
+    based_of_today = operationsCalendar.find_all("a", {'data-ipshover-target':True})
+    events = []
+    for a in based_of_today:
+        for i in dateRange:
+            if a["data-ipshover-target"].find(i)>0:
+                events.append([i, a])
+    if checkMonthChange(dateRange[0][5:7], dateRange[-1][5:7]):
+        based_of_next_month = nextOperationsCalendar.find_all("a", {'data-ipshover-target':True})
+        for a in based_of_next_month:
+            for i in dateRange:
+                if a["data-ipshover-target"].find(i)>0:
+                    events.append([i, a])
+    return events
 
+# Utility function to make error messages a bit more flavourful
+def printErrorBox(message):
+    print("*****************************")
+    print(message)
+    print("*****************************")
+
+# Prompts the user for input about which event they want to view
+def get_attendance_URL():
+    print("16AA Vote Displayer v1.3.\n")
+    events = get_events()
+    chosenEvent = ""
+    for event in events:
+        print(str(events.index(event)+1)+ ": " + event[0] + " - " + event[1]["title"])
+    chosenEvent = input("Which of the events listed would you want to view? Enter the number OR paste the full URL to any other event not listed.\n")
+    if "https://community.16aa.net/calendar/event/" in chosenEvent:
+        return chosenEvent
+    elif len(chosenEvent) != 1: 
+        printErrorBox("Please enter a single digit value or the full URL")
+        return get_attendance_URL()
+    try:
+        chosenEvent = int(chosenEvent)
+        if chosenEvent > len(events) or chosenEvent<1:
+            printErrorBox("There is only " + str(len(events)) + " events to chose from in the list. Try again. I believe in you.")
+            return get_attendance_URL()
+        else:
+            return events[chosenEvent-1][1]["href"]
+    except (TypeError, ValueError):
+        printErrorBox("Select an event using the number on the list or pasting the full URL.")
+        return get_attendance_URL()
+    
+
+attendanceURL = get_attendance_URL()
 
 # Parameter section is the id of the div displaying the members on the ORBAT ("x/y section" or similar)
 # Returns list with members in string form
@@ -75,7 +118,7 @@ def get_voters():
             loa_voters.append(loa.get_text())
     except AttributeError as error:
         print("Make sure your URL was correct. I couldn't find anything at all there...")
-        input("This will turn off now. Press any key and restart. Do it right this time. Bye!\n")
+        input("This will turn off now. Press any key and restart. Do it right next time. Bye!\n")
         sys.exit()
     votes_dictionary = {"yes": [], "maybe": [], "no": []}
     for voter in attending_voters:
