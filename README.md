@@ -17,6 +17,8 @@ I'll try to stay ontop of maintaining it until a better solution is made by some
 Until then, good luck!
 
 CHANGELOG:
+1.3.1:
+Included the newly formed 2/1 section into the roster.
 1.3:
 "Improved" the user experience to allow for less copy paste of URLs which makes crayoneaters confused. Tasty crayons...
 1.2.1:

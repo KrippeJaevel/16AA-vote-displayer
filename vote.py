@@ -61,7 +61,7 @@ def printErrorBox(message):
 
 # Prompts the user for input about which event they want to view
 def get_attendance_URL():
-    print("16AA Vote Displayer v1.3.\n")
+    print("16AA Vote Displayer v1.3.1.\n")
     events = get_events()
     chosenEvent = ""
     for event in events:
@@ -178,6 +178,7 @@ oneone = get_section_members("1/1 Section")
 onetwo = get_section_members("1/2 Section")
 onethree = get_section_members("1/3 Section")
 twoplt = get_section_members("2 Platoon HQ")
+twoone = get_section_members("2/1 Section")
 twotwo = get_section_members("2/2 Section")
 twothree = get_section_members("2/3 Section")
 fsg = get_section_members("FSG")
@@ -190,7 +191,7 @@ pathfinders = get_section_members("Pathfinders")
 mi = get_section_members("3/2 Section")
 
 # Compile a list of the company and a variable to hold the page
-the_unit = [coyhq, oneplt, oneone, onetwo, onethree, twoplt, twotwo, twothree, fsg, aasr, csmr, jhc, fst, sig, pathfinders, mi]
+the_unit = [coyhq, oneplt, oneone, onetwo, onethree, twoplt, twoone, twotwo, twothree, fsg, aasr, csmr, jhc, fst, sig, pathfinders, mi]
 page = ""
 
 # Iterate through the list of the company, rendering the HTML-template for each of them  
