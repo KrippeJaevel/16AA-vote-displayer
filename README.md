@@ -21,11 +21,14 @@ CHANGELOG:
 Included the newly formed 2/1 section into the roster.
 1.3:
 "Improved" the user experience to allow for less copy paste of URLs which makes crayoneaters confused. Tasty crayons...
+
 1.2.1:
 Corrected logic to find names instead of links with name as tooltip and stuff.
 Included version number in prompt.
+
 1.2:
 FST renamed to JFIST on the website, adapted script to stop fucking up and breaking down.
 Included MI under the name 3/2.
+
 1.1:
 Includes Coy HQ, Signals and FST who were previously not included due to website structure.
